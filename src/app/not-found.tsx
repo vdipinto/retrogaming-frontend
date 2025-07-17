@@ -11,12 +11,12 @@ import { SeoQuery } from "@/queries/general/SeoQuery";
 const notFoundPageWordPressId = 501;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { contentNode } = await fetchGraphQL<{ contentNode: ContentNode }>(
+  const { contentNode } = await fetchGraphQL<{ contentNode: ContentNode | null }>(
     print(SeoQuery),
     { slug: notFoundPageWordPressId, idType: "DATABASE_ID" },
   );
 
-  const metadata = setSeoData({ seo: contentNode.seo });
+  const metadata = contentNode?.seo ? setSeoData({ seo: contentNode.seo }) : {};
 
   return {
     ...metadata,
@@ -27,9 +27,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NotFound() {
-  const { page } = await fetchGraphQL<{ page: Page }>(print(PageQuery), {
+  const { page } = await fetchGraphQL<{ page: Page | null }>(print(PageQuery), {
     id: notFoundPageWordPressId,
   });
 
-  return <div dangerouslySetInnerHTML={{ __html: page.content || " " }} />;
+  if (!page || !page.content) {
+    return (
+      <main className="prose max-w-3xl mx-auto py-20 text-center">
+        <h1 className="text-4xl font-bold">404 – Page Not Found</h1>
+        <p>The page could not be loaded from WordPress.</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="prose max-w-3xl mx-auto py-20">
+      <div dangerouslySetInnerHTML={{ __html: page.content }} />
+    </main>
+  );
 }

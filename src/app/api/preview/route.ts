@@ -1,5 +1,4 @@
 import { print } from "graphql/language/printer";
-
 import { ContentNode, LoginPayload } from "@/gql/graphql";
 import { fetchGraphQL } from "@/utils/fetchGraphQL";
 import { draftMode } from "next/headers";
@@ -18,20 +17,20 @@ export async function GET(request: Request) {
   }
 
   const mutation = gql`
-  mutation LoginUser {
-    login( input: {
-      clientMutationId: "uniqueId",
-      username: "${process.env.WP_USER}",
-      password: "${process.env.WP_APP_PASS}"
-    } ) {
-      authToken
-      user {
-        id
-        name
+    mutation LoginUser {
+      login(input: {
+        clientMutationId: "uniqueId",
+        username: "${process.env.WP_USER}",
+        password: "${process.env.WP_APP_PASS}"
+      }) {
+        authToken
+        user {
+          id
+          name
+        }
       }
     }
-  }
-`;
+  `;
 
   const { login } = await fetchGraphQL<{ login: LoginPayload }>(
     print(mutation),
@@ -39,7 +38,8 @@ export async function GET(request: Request) {
 
   const authToken = login.authToken;
 
-  draftMode().enable();
+  const draft = await draftMode(); // ✅ Await first
+  draft.enable(); // ✅ Then call enable()
 
   const query = gql`
     query GetContentNode($id: ID!) {
@@ -53,9 +53,7 @@ export async function GET(request: Request) {
 
   const { contentNode } = await fetchGraphQL<{ contentNode: ContentNode }>(
     print(query),
-    {
-      id,
-    },
+    { id },
     { Authorization: `Bearer ${authToken}` },
   );
 

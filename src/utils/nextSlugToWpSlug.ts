@@ -1,2 +1,4 @@
-export const nextSlugToWpSlug = (nextSlug: string) =>
-  nextSlug && Array.isArray(nextSlug) ? nextSlug.join("/") : nextSlug ?? "/";
+export const nextSlugToWpSlug = (nextSlug: string[] | undefined): string => {
+  const path = nextSlug?.join("/") ?? "";
+  return `/${path.replace(/^\/|\/$/g, "")}/`;
+};
