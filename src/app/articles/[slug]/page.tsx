@@ -1,0 +1,1 @@
+//single post (`/articles/my-post`)

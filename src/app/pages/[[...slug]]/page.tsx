@@ -1,3 +1,6 @@
+// This is the page that displays the content of the page or post.  It is the main page for the website.
+//WordPress pages (`/about`, `/about/team`, etc.)
+
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 import type { Metadata } from "next";
