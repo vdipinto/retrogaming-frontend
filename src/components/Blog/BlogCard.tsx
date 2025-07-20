@@ -1,7 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { Post } from "@/types/post"; // ✅ Adjusted import path
+import type { Post } from "@/types/post";
 import { format } from "date-fns";
+
+// Strip all HTML tags from the excerpt
+function stripAllHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, "");
+}
 
 type Props = {
   post: Post;
@@ -12,58 +17,53 @@ export default function BlogCard({ post }: Props) {
     ? format(new Date(post.date), "MMMM d, yyyy")
     : "";
 
-  const categoryEdges = post.categories?.edges ?? [];
+  const category = post.categories?.edges[0]?.node;
   const imageUrl = post.featuredImage?.node?.sourceUrl;
 
   return (
-    <article className="mb-10 border-b pb-6">
-      {imageUrl && (
-        <Link href={`/articles/${post.slug}`}> {/* Adjust route if needed */}
+    <Link
+      href={`/articles/${post.slug}`}
+      className="block rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-zinc-900"
+    >
+      {/* Image with category badge */}
+      <div className="relative h-56">
+        {imageUrl && (
           <Image
             src={imageUrl}
             alt={post.title}
-            width={800}
-            height={400}
-            className="mb-4 rounded"
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 25vw, 100vw"
           />
-        </Link>
-      )}
+        )}
 
-      {formattedDate && (
-        <p className="text-sm text-gray-500 mb-1">{formattedDate}</p>
-      )}
+        {/* Category badge (optional) */}
+        {category && (
+          <span className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
+            {category.name}
+          </span>
+        )}
+      </div>
 
-      <h2 className="text-2xl font-semibold mb-2">
-        <Link href={`/articles/${post.slug}`} className="hover:underline">
+      {/* Content */}
+      <div className="p-4 flex flex-col justify-between h-full">
+        {/* Title */}
+        <h2 className="text-lg font-semibold mb-2 text-zinc-900 dark:text-white leading-snug">
           {post.title}
-        </Link>
-      </h2>
+        </h2>
 
-      {categoryEdges.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-2 text-sm">
-          {categoryEdges.map(({ node }) => (
-            <Link
-              key={node.slug}
-              href={`/category/${node.slug}`}
-              className="text-blue-600 hover:underline"
-            >
-              #{node.name}
-            </Link>
-          ))}
-        </div>
-      )}
-
-      <div
-        className="text-gray-600 mb-2"
-        dangerouslySetInnerHTML={{ __html: post.excerpt }}
-      />
-
-      <Link
-        href={`/articles/${post.slug}`}
-        className="text-blue-600 font-medium hover:underline"
-      >
-        Read more →
-      </Link>
-    </article>
+        {/* Excerpt (plain text only) */}
+        <p
+  className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-3"
+  style={{ textDecoration: "none" }}
+>
+  {stripAllHtml(post.excerpt)}
+</p>
+        {/* Date */}
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-auto">
+          {formattedDate}
+        </p>
+      </div>
+    </Link>
   );
 }

@@ -1,7 +1,7 @@
 import { draftMode } from "next/headers";
 import { Inter } from "next/font/google";
 
-import "@/app/globals.css";
+import "./globals.css";
 
 import Navigation from "@/components/Globals/Navigation/Navigation";
 import { PreviewNotice } from "@/components/Globals/PreviewNotice/PreviewNotice";

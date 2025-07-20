@@ -1,42 +1,49 @@
 export type Category = {
-    name: string;
-    slug: string;
-  };
-  
+  name: string;
+  slug: string;
+};
+
+export type Tag = {
+  name: string;
+  slug: string;
+};
 
 export type Post = {
-    slug: string;
-    title: string;
-    excerpt: string;
-    date: string;
-    featuredImage?: {
-      node?: {
-        sourceUrl: string;
-      };
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  gameYear?: string;
+
+  featuredImage?: {
+    node?: {
+      sourceUrl: string;
     };
-    categories?: {
-        edges: {
-          node: Category;
-        }[];
-      };
   };
-  
-// I need these to fully and safely handle cursor-based pagination in my GraphQL post list.
 
-// PostEdge is a single post in the list.
+  categories?: {
+    edges: {
+      node: Category;
+    }[];
+  };
+
+  tags?: {
+    edges: {
+      node: Tag;
+    }[];
+  };
+};
+
 export type PostEdge = {
-    node: Post;
-  };
-  
+  node: Post;
+};
 
-  // PageInfo contains pagination metadata.
-  export type PageInfo = {
-    endCursor: string | null;
-    hasNextPage: boolean;
-  };
-  
-  // PostConnection is the complete list of posts.
-  export type PostConnection = {
-    edges: PostEdge[];
-    pageInfo: PageInfo;
-  };
+export type PageInfo = {
+  endCursor: string | null;
+  hasNextPage: boolean;
+};
+
+export type PostConnection = {
+  edges: PostEdge[];
+  pageInfo: PageInfo;
+};
