@@ -1,75 +1,24 @@
-import { print } from "graphql/language/printer";
-import { ContentNode, LoginPayload } from "@/gql/graphql";
-import { fetchGraphQL } from "@/utils/fetchGraphQL";
 import { draftMode } from "next/headers";
 import { NextResponse } from "next/server";
-import gql from "graphql-tag";
+import { print } from "graphql/language/printer";
 
-export const dynamic = "force-dynamic";
+import { fetchGraphQL } from "@/utils/fetchGraphQL";
+import { SeoQuery } from "@/queries/general/SeoQuery";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get("secret");
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
+  const redirect = searchParams.get("redirect");
 
-  if (secret !== process.env.HEADLESS_SECRET || !id) {
-    return new Response("Invalid token", { status: 401 });
+  if (!id || !redirect) {
+    return new NextResponse("Missing `id` or `redirect` parameter", { status: 400 });
   }
 
-  const mutation = gql`
-    mutation LoginUser {
-      login(input: {
-        clientMutationId: "uniqueId",
-        username: "${process.env.WP_USER}",
-        password: "${process.env.WP_APP_PASS}"
-      }) {
-        authToken
-        user {
-          id
-          name
-        }
-      }
-    }
-  `;
+  // Just enter preview mode
+  (await draftMode()).enable();
 
-  const { login } = await fetchGraphQL<{ login: LoginPayload }>(
-    print(mutation),
-  );
+  // Optionally refetch the content (can be removed if not needed)
+  await fetchGraphQL(print(SeoQuery), { slug: id, idType: "DATABASE_ID" });
 
-  const authToken = login.authToken;
-
-  const draft = await draftMode(); // ✅ Await first
-  draft.enable(); // ✅ Then call enable()
-
-  const query = gql`
-    query GetContentNode($id: ID!) {
-      contentNode(id: $id, idType: DATABASE_ID) {
-        uri
-        status
-        databaseId
-      }
-    }
-  `;
-
-  const { contentNode } = await fetchGraphQL<{ contentNode: ContentNode }>(
-    print(query),
-    { id },
-    { Authorization: `Bearer ${authToken}` },
-  );
-
-  if (!contentNode) {
-    return new Response("Invalid id", { status: 401 });
-  }
-
-  const response = NextResponse.redirect(
-    `${process.env.NEXT_PUBLIC_BASE_URL}${
-      contentNode.status === "draft"
-        ? `/preview/${contentNode.databaseId}`
-        : contentNode.uri
-    }`,
-  );
-
-  response.headers.set("Set-Cookie", `wp_jwt=${authToken}; path=/;`);
-
-  return response;
+  return NextResponse.redirect(redirect);
 }

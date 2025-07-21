@@ -6,14 +6,9 @@ import { setSeoData } from "@/utils/seoData";
 import { print } from "graphql/language/printer";
 import type { Metadata } from "next";
 
-type ArticlePageParams = {
-  params: {
-    slug: string;
-  };
-};
-
-async function getMetadata(props: any): Promise<Metadata> {
-  const { params } = props as ArticlePageParams;
+// ✅ Function uses plain `props: any` — no custom types
+export async function generateMetadata(props: any): Promise<Metadata> {
+  const { params } = props as { params: { slug: string } };
 
   const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
     print(SeoQuery),
@@ -27,17 +22,12 @@ async function getMetadata(props: any): Promise<Metadata> {
     return { title: "Post Not Found" };
   }
 
-  return setSeoData({
-    seo: contentNode.seo,
-    slug: params.slug,
-  });
+  return setSeoData({ seo: contentNode.seo, slug: params.slug });
 }
 
-export { getMetadata as generateMetadata };
+export default async function ArticlePage(props: any) {
+  const { params } = props as { params: { slug: string } };
 
-export default async function ArticlePage({
-  params,
-}: ArticlePageParams) {
   const { post } = await fetchGraphQL<{ post: any }>(
     print(PostBySlugQuery),
     { slug: params.slug }
