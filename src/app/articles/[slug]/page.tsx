@@ -12,7 +12,8 @@ type ArticlePageParams = {
   };
 };
 
-export async function generateMetadata({
+// 👇 FIX: Rename function + export manually to avoid Vercel type inference bug
+async function getMetadata({
   params,
 }: ArticlePageParams): Promise<Metadata> {
   const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
@@ -32,6 +33,8 @@ export async function generateMetadata({
     slug: params.slug,
   });
 }
+
+export { getMetadata as generateMetadata };
 
 export default async function ArticlePage({
   params,
