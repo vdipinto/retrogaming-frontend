@@ -12,10 +12,9 @@ type ArticlePageParams = {
   };
 };
 
-// 👇 FIX: Rename function + export manually to avoid Vercel type inference bug
-async function getMetadata({
-  params,
-}: ArticlePageParams): Promise<Metadata> {
+async function getMetadata(props: any): Promise<Metadata> {
+  const { params } = props as ArticlePageParams;
+
   const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
     print(SeoQuery),
     {
