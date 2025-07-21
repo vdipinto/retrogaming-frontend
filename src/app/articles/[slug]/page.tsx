@@ -6,23 +6,25 @@ import { setSeoData } from "@/utils/seoData";
 import { print } from "graphql/language/printer";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
-    print(SeoQuery),
-    {
-      slug: params.slug,
-      idType: "SLUG",
+export async function generateMetadata({
+    params,
+  }: {
+    params: { slug: string };
+  }): Promise<Metadata> {
+    const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
+      print(SeoQuery),
+      {
+        slug: params.slug,
+        idType: "SLUG",
+      }
+    );
+  
+    if (!contentNode?.seo) {
+      return { title: "Post Not Found" };
     }
-  );
-
-  if (!contentNode?.seo) {
-    return {
-      title: "Post Not Found",
-    };
+  
+    return setSeoData({ seo: contentNode.seo, slug: params.slug });
   }
-
-  return setSeoData({ seo: contentNode.seo });
-}
 
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   const { post } = await fetchGraphQL<{ post: any }>(

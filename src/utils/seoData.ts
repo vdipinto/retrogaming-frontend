@@ -1,15 +1,18 @@
-import { Page } from "@/gql/graphql";
+import type { SetSeoDataProps } from "@/types/seoData.types";
 
-export const setSeoData = ({ seo }: { seo: Page["seo"] }) => {
+export const setSeoData = ({ seo, slug }: SetSeoDataProps) => {
   if (!seo) return {};
 
   return {
-    metadataBase: new URL(`${process.env.NEXT_PUBLIC_BASE_URL}`),
+    metadataBase: new URL("https://retrogamingdude.co.uk"),
     title: seo.title || "",
     description: seo.metaDesc || "",
     robots: {
-      index: seo.metaRobotsNoindex === "index" ? true : false,
-      follow: seo.metaRobotsNofollow === "follow" ? true : false,
+      index: seo.metaRobotsNoindex === "index",
+      follow: seo.metaRobotsNofollow === "follow",
+    },
+    alternates: {
+      canonical: seo.canonical || `https://retrogamingdude.co.uk/articles/${slug ?? ""}`,
     },
     openGraph: {
       title: seo.opengraphTitle || "",
