@@ -6,13 +6,15 @@ import { setSeoData } from "@/utils/seoData";
 import { print } from "graphql/language/printer";
 import type { Metadata } from "next";
 
-type Props = {
+type ArticlePageParams = {
   params: {
     slug: string;
   };
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ArticlePageParams): Promise<Metadata> {
   const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
     print(SeoQuery),
     {
@@ -31,7 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function ArticlePage({ params }: Props) {
+export default async function ArticlePage({
+  params,
+}: ArticlePageParams) {
   const { post } = await fetchGraphQL<{ post: any }>(
     print(PostBySlugQuery),
     { slug: params.slug }
