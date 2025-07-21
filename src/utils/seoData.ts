@@ -1,10 +1,13 @@
 import type { SetSeoDataProps } from "@/types/seoData.types";
 
+// Read the public-facing site URL from the environment
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://retrogamingdude.co.uk"; // fallback just in case
+
 export const setSeoData = ({ seo, slug }: SetSeoDataProps) => {
   if (!seo) return {};
 
   return {
-    metadataBase: new URL("https://retrogamingdude.co.uk"),
+    metadataBase: new URL(siteUrl),
     title: seo.title || "",
     description: seo.metaDesc || "",
     robots: {
@@ -12,7 +15,7 @@ export const setSeoData = ({ seo, slug }: SetSeoDataProps) => {
       follow: seo.metaRobotsNofollow === "follow",
     },
     alternates: {
-      canonical: seo.canonical || `https://retrogamingdude.co.uk/articles/${slug ?? ""}`,
+      canonical: seo.canonical || `${siteUrl}/articles/${slug ?? ""}`,
     },
     openGraph: {
       title: seo.opengraphTitle || "",

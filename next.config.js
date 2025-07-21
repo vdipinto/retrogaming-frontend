@@ -1,23 +1,21 @@
 /** @type {import('next').NextConfig} */
 
-// Safely parse hostname + protocol from your WordPress API URL
-//const apiUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
-const apiUrl = "https://retrogamingdude.co.uk/graphql";
+const apiUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
 
 if (!apiUrl) {
   throw new Error("❌ Missing NEXT_PUBLIC_WORDPRESS_API_URL in your environment.");
 }
 
-const { hostname, protocol } = new URL(apiUrl); // extract from full URL
+const { hostname, protocol } = new URL(apiUrl);
 
 const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: protocol.replace(":", ""), // "http:" → "http"
-        hostname,                            // e.g. "commercial-example-site.local"
+        protocol: protocol.replace(":", ""),
+        hostname,
         port: "",
-        pathname: "/**",                     // allow all image paths
+        pathname: "/wp-content/uploads/**",
       },
     ],
   },
