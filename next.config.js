@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 // Safely parse hostname + protocol from your WordPress API URL
-const apiUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
+//const apiUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
+const apiUrl = "https://retrogamingdude.co.uk/graphql";
 
 if (!apiUrl) {
   throw new Error("❌ Missing NEXT_PUBLIC_WORDPRESS_API_URL in your environment.");
