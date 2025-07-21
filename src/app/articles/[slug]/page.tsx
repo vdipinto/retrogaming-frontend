@@ -5,28 +5,25 @@ import { SeoQuery } from "@/queries/general/SeoQuery";
 import { setSeoData } from "@/utils/seoData";
 import { print } from "graphql/language/printer";
 import type { Metadata } from "next";
+import type { PageProps } from "@/types/routes";
 
-export async function generateMetadata({
-    params,
-  }: {
-    params: { slug: string };
-  }): Promise<Metadata> {
-    const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
-      print(SeoQuery),
-      {
-        slug: params.slug,
-        idType: "SLUG",
-      }
-    );
-  
-    if (!contentNode?.seo) {
-      return { title: "Post Not Found" };
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
+    print(SeoQuery),
+    {
+      slug: params.slug,
+      idType: "SLUG",
     }
-  
-    return setSeoData({ seo: contentNode.seo, slug: params.slug });
+  );
+
+  if (!contentNode?.seo) {
+    return { title: "Post Not Found" };
   }
 
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
+  return setSeoData({ seo: contentNode.seo, slug: params.slug });
+}
+
+export default async function ArticlePage({ params }: PageProps) {
   const { post } = await fetchGraphQL<{ post: any }>(
     print(PostBySlugQuery),
     { slug: params.slug }
