@@ -1,5 +1,3 @@
-// src/app/articles/[slug]/page.tsx
-
 import { notFound } from "next/navigation";
 import { fetchGraphQL } from "@/utils/fetchGraphQL";
 import { PostBySlugQuery } from "@/queries/posts/PostBySlugQuery";
@@ -8,15 +6,13 @@ import { setSeoData } from "@/utils/seoData";
 import { print } from "graphql/language/printer";
 import type { Metadata } from "next";
 
-type PageParams = {
+type Props = {
   params: {
     slug: string;
   };
 };
 
-export async function generateMetadata(props: PageParams): Promise<Metadata> {
-  const { params } = props;
-
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
     print(SeoQuery),
     {
@@ -29,12 +25,13 @@ export async function generateMetadata(props: PageParams): Promise<Metadata> {
     return { title: "Post Not Found" };
   }
 
-  return setSeoData({ seo: contentNode.seo, slug: params.slug });
+  return setSeoData({
+    seo: contentNode.seo,
+    slug: params.slug,
+  });
 }
 
-export default async function ArticlePage(props: PageParams) {
-  const { params } = props;
-
+export default async function ArticlePage({ params }: Props) {
   const { post } = await fetchGraphQL<{ post: any }>(
     print(PostBySlugQuery),
     { slug: params.slug }
