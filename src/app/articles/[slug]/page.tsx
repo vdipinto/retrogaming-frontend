@@ -6,31 +6,44 @@ import { setSeoData } from "@/utils/seoData";
 import { print } from "graphql/language/printer";
 import type { Metadata } from "next";
 
-// ✅ Function uses plain `props: any` — no custom types
-export async function generateMetadata(props: any): Promise<Metadata> {
-  const { params } = props as { params: { slug: string } };
+// ✅ Next.js 15-compliant: await the `params` Promise directly
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
 
   const { contentNode } = await fetchGraphQL<{ contentNode: any }>(
     print(SeoQuery),
     {
-      slug: params.slug,
-      idType: "SLUG",
+      slug,
+      idType: "URI",
     }
   );
 
   if (!contentNode?.seo) {
-    return { title: "Post Not Found" };
+    return {
+      title: "Post Not Found",
+    };
   }
 
-  return setSeoData({ seo: contentNode.seo, slug: params.slug });
+  return setSeoData({ seo: contentNode.seo, slug });
 }
 
-export default async function ArticlePage(props: any) {
-  const { params } = props as { params: { slug: string } };
+// ✅ Page component using the same `Promise<{ params }>` pattern
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
 
   const { post } = await fetchGraphQL<{ post: any }>(
     print(PostBySlugQuery),
-    { slug: params.slug }
+    {
+      slug,
+    }
   );
 
   if (!post) return notFound();
